@@ -1,0 +1,43 @@
+{
+  "name": "serverless",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "sls package && npx sls offline start --verbose",
+    "sharp:dev": "rm -rf node_modules/sharp && SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --platform=darwin --arch=arm64v8 sharp",
+    "sharp:deploy": "rm -rf node_modules/sharp && SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --arch=x64 --platform=linux sharp"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "buffer-image-size": "^0.6.4",
+    "jwt-decode": "^3.1.2",
+    "lambda-multipart-parser": "^1.0.1",
+    "sharp": "^0.31.3"
+  },
+  "devDependencies": {
+    "@silvermine/serverless-plugin-cloudfront-lambda-edge": "2.2.3",
+    "@types/aws-lambda": "^8.10.109",
+    "@types/body-parser": "^1.19.2",
+    "@types/node": "^18.11.18",
+    "@types/sharp": "^0.31.1",
+    "@types/uuid": "^9.0.0",
+    "aws-lambda": "^1.0.7",
+    "aws-sdk": "^2.1292.0",
+    "serverless": "^3.26.0",
+    "serverless-esbuild": "^1.35.3",
+    "serverless-offline": "^12.0.4",
+    "serverless-offline-edge-lambda": "^1.2.3",
+    "serverless-prune-plugin": "^2.0.1",
+    "serverless-webpack": "^5.11.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.4",
+    "webpack": "^5.75.0",
+    "webpack-node-externals": "^3.0.0"
+  }
+}

@@ -1,0 +1,79 @@
+service: og-serverless
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  stage: prod
+  apiGateway:
+    binaryMediaTypes:
+      - 'image/*'
+      - 'video/*'
+      - 'multipart/form-data'
+      - 'text/html'
+
+custom:
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules:
+      forceExclude:
+        - aws-sdk
+    packager: 'npm'
+    packagerOptions:
+      scripts:
+        - rm -rf node_modules/sharp/
+        - SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --arch=x64 --platform=linux sharp
+  offlineEdgeLambda:
+    path: '.webpack/service'
+
+functions:
+  ImageResizer:
+    role: arn:aws:iam::474944200741:role/EdgeLambdaRole
+    handler: handler/CloudFront/imageResizer.handler
+    memorySize: 1024
+    timeout: 30
+    lambdaAtEdge:
+      eventType: 'origin-response'
+      pathPattern: '/image/*'
+  #  VideoServer:
+  #    handler: handler/CloudFront/videoServer.handler
+  #    memorySize: 128
+  #    timeout: 5
+  #    lambdaAtEdge:   arn:aws:iam::474944200741:role/APILambdaRole
+  #      distribution: 'Distribution'
+  #      eventType: 'origin-response'
+  #      pathPattern: '/video/*'
+  ImageViewer:
+    role: arn:aws:iam::474944200741:role/APILambdaRole
+    handler: handler/APIGateway/imageViewer.handler
+    memorySize: 1024
+    timeout: 30
+    events:
+      - http:
+          path: /image/{bucket}/{path}
+#          integration: lambda
+          method: get
+          cors: true
+  ImageUploader:
+    role: arn:aws:iam::474944200741:role/APILambdaRole
+    handler: handler/APIGateway/imageUploader.handler
+    memorySize: 1024
+    timeout: 30
+    events:
+      - http:
+          path: /image
+          method: post
+          cors: true
+#  VideoTranscoder:
+#    handler: handler/APIGateway/videoTranscoder.handler
+#    events:
+#      - http:
+#          path: /video
+#          method: post
+#          cors: true
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-offline-edge-lambda
+  - serverless-prune-plugin
